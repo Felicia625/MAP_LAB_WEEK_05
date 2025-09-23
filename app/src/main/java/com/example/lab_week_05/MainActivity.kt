@@ -14,6 +14,7 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.converter.moshi.MoshiConverterFactory
 import com.example.lab_week_05.model.ImageData
+import com.example.lab_week_05.model.CatBreedData
 
 class MainActivity : AppCompatActivity() {
     private val retrofit by lazy{
@@ -56,13 +57,24 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<ImageData>>, response: Response<List<ImageData>>){
                 if(response.isSuccessful){
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
-                    if(firstImage.isNotBlank()){
-                        imageLoader.loadImage(firstImage, imageResultView)
+                    val firstImage = image?.firstOrNull()
+
+                    val breed = firstImage?.breeds?.firstOrNull()
+                    val breedName = breed?.name ?: "Unknown"
+                    val temperament = breed?.temperament ?: "Unknown"
+
+                    val imageUrl = firstImage?.imageUrl.orEmpty()
+
+                    if(imageUrl.isNotBlank()){
+                        imageLoader.loadImage(imageUrl, imageResultView)
                     }else{
                         Log.d(MAIN_ACTIVITY, "Missing image URL")
                     }
-                    apiResponseTextView.text = getString(R.string.image_placeholder, firstImage)
+                    apiResponseTextView.text = getString(
+                        R.string.image_placeholder,
+                        breedName,
+                        temperament
+                    )
                 }else{
                     Log.e(MAIN_ACTIVITY, "Failed to get respons\n"+response.errorBody()?.string().orEmpty())
                 }
